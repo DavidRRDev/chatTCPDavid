@@ -5,47 +5,44 @@ import java.util.List;
 
 public class Room {
     private String name;
-    private List<User> users; // Esta lista contendrá los hilos de los usuarios
+    private List<User> users;
 
     public Room(String name) {
         this.name = name;
         this.users = new ArrayList<>();
     }
-
-    public synchronized void addUser(User user) {
-        // Sincronizado para manejar el acceso concurrente a la lista de usuarios
-        this.users.add(user);
+    public void addUser(User user) {
+        synchronized (users) {
+            users.add(user);
+        }
     }
-
-    public synchronized void removeUser(User user) {
-        // Sincronizado por la misma razón mencionada anteriormente
-        this.users.remove(user);
+    public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public List<User> getUsers() {
+		return users;
+	}
+	public void setUsers(List<User> users) {
+		this.users = users;
+	}
+	public void removeUser(User user) {
+        synchronized (users) {
+            users.remove(user);
+        }
     }
-
-    public void sendMessage(String message, User sender) {
-        // Enviar un mensaje a todos los usuarios en la sala excepto al remitente
-        for (User aUser : users) {
-            if (aUser != sender) {
-                aUser.sendMessage(message);
+    public synchronized void sendMessage(String message, User sender) {
+    	
+        for (User user : users) {
+        	if (!user.equals(sender)) {
+                user.sendMessage(message);
             }
         }
     }
 
-    public List<String> listUsers() {
-        // Devuelve una lista de nombres de usuario para mostrar quién está en la sala
-        List<String> userList = new ArrayList<>();
-        for (User aUser : users) {
-            userList.add(aUser.getUsername());
-        }
-        return userList;
-    }
-
-    // Getters y setters
-    public String getName() {
-        return name;
-    }
-
-    public List<User> getUsers() {
-        return users;
+    public  synchronized List<User> listUsers() {
+    	   return new ArrayList<>(users);
     }
 }
